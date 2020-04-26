@@ -1,13 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>
-        Harmony
-    </title>
-</head>
-<body>
+{% extends 'menu.html' %}
+
+{% block body %}
 
 <table>
     <tr>
@@ -19,14 +12,13 @@
     </tr>
     {% for i in info %}
         <tr>
-            <td>{{ i['user_id'] }}</td>
-            <td>{{ i['name'] }}</td>
-            <td>{{ i['email'] }}</td>
-            <td>{{ i['dob'] }}</td>
-            <td>{{ i['gender'] }}</td>
+            <td>{{ i[0] }}</td>
+            <td>{{ i[1] }}</td>
+            <td>{{ i[2] }}</td>
+            <td>{{ i[4] }}</td>
+            <td>{{ i[5] }}</td>
         </tr>
     {% endfor %}
 </table>
 
-</body>
-</html>
+{% endblock %}
