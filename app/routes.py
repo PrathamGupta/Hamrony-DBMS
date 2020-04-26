@@ -10,4 +10,4 @@ def meet():
     curr=mysql.connection.cursor()
     curr.execute("select * from users")
     data = curr.fetchall()
-    return render_template("menu.html")
+    return render_template("meet.html", info=data)
