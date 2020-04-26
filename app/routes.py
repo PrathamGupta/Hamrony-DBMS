@@ -5,4 +5,9 @@ from app import app, mysql
 def main():
     return "Welcome!"
 
-
+@app.route('/meet')
+def meet():
+    curr=mysql.connection.cursor()
+    curr.execute("select * from users")
+    data = curr.fetchall()
+    return render_template("menu.html")

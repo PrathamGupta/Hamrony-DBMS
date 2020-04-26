@@ -10,4 +10,13 @@ app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
 
 
-from app import routes
+@app.route('/')
+def main():
+    return "Welcome!"
+
+@app.route('/meet')
+def meet():
+    curr=mysql.connection.cursor()
+    curr.execute("select * from users")
+    data = curr.fetchall()
+    return render_template("menu.html")
