@@ -4,3 +4,5 @@ from app import app, mysql
 @app.route('/')
 def main():
     return "Welcome!"
+
+
