@@ -1,7 +1,7 @@
 {% extends 'menu.html' %}
 
 {% block body %}
-
+<a href="{{ url_for('match') }}"><button onclick="nextItem()">Next</button></a>
 <table>
     <tr>
         <th>USER ID.</th>
@@ -10,15 +10,16 @@
         <th>DATE OF BIRTH</th>
         <th>GENDER</th>
     </tr>
-    {% for i in info %}
+    
         <tr>
-            <td>{{ i[0] }}</td>
-            <td>{{ i[1] }}</td>
-            <td>{{ i[2] }}</td>
-            <td>{{ i[4] }}</td>
-            <td>{{ i[5] }}</td>
+            <td><label id="id">{{ info[0] }}</label></td>
+            <td><label id="name">{{ info[1] }}</label></td>
+            <td><label id="email">{{ info[2] }}</label></td>
+            <td><label id="dob">{{ info[4] }}</label></td>
+            <td><label id="gender">{{ info[5] }}</label></td>
         </tr>
-    {% endfor %}
+    
 </table>
+
 
 {% endblock %}
