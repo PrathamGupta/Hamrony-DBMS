@@ -1,0 +1,15 @@
+{% extends 'menu.html' %}
+{% block body %}
+
+    {% if result|length > 0 %}
+
+        {% for user in result %}
+        <li>{{user[0]}} </li>
+        {%endfor %}
+
+    {% else %}
+        <h3>Please mark some favorite albums to get suggestions! </h3>
+    
+    {% endif %}
+
+{% endblock %}

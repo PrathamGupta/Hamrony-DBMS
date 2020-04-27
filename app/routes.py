@@ -19,7 +19,7 @@ def main():
     user=cur.fetchall()
     for i in user:
         dic[i] = False
-    return redirect("http://127.0.0.1:5000/"+"Login")
+    return redirect(url_for("login"))
 
 
 
@@ -28,24 +28,17 @@ def main():
 def login():
     global dic
     global userLogged
-    # loggedIn= False
-    print("HERE")
     if request.method == 'POST' and 'email' in request.form and 'passwd' in request.form:
         email=request.form['email']
         passwd=request.form['passwd']
-        print("HERE2")
         cur=mysql.connection.cursor()
-        print("HERE3")
         cur.execute('SELECT * FROM users where email=%s and passwd=%s', (email, passwd))
         user=cur.fetchone()
         userLogged=user
-        print(user)
-        # if(user):
-        print("HERE4")
         dic[user]=True
         print(dic[user])
         if(dic[user]==True):
-            return redirect("http://127.0.0.1:5000/"+"HomePage")
+            return redirect(url_for("homePage"))
         else:
             return render_template('login.html')
     else:
@@ -59,9 +52,7 @@ def register():
     email=""
     password=""
     name=""
-    print("HERE2")
     if request.method == 'POST':
-        print("HERE")
         if 'uname' in request.form and 'uname'.lower()!='admin' and 'passwd' in request.form and 'email' in request.form and 'gender' in request.form and 'dob' in request.form:
             name=request.form['uname']
             passwd=request.form['passwd']
@@ -77,7 +68,7 @@ def register():
             cur.execute('SELECT COUNT(*) FROM users')
             cur.execute('INSERT INTO users(user_id, Name, email, passwd, gender, dob) VALUES (%s, %s, %s, %s, %s, %s)', (int(cur.fetchone()[0])+1,name, email, passwd, gender, dob))
             mysql.connection.commit()
-            return redirect("http://127.0.0.1:5000/")
+            return redirect(url_for("main"))
         else:
             return render_template('reg.html')
     else:
@@ -91,7 +82,7 @@ def homePage():
     global userLogged
     print("HOMEPAGE")
     if( userLogged not in dic or dic[userLogged] is False):
-        return redirect("http://127.0.0.1:5000/"+"Login")
+        return redirect(url_for("login"))
     else:
         return render_template('homePage.html', uname=userLogged[1])
 
@@ -103,7 +94,7 @@ def profile():
     global userLogged
     if(request.method=='GET'):
         if( userLogged not in dic or dic[userLogged] is False):
-            return redirect("http://127.0.0.1:5000/"+"Login")
+            return redirect(url_for("login"))
         else:
             return render_template('profilePage.html', user=userLogged)
     if(request.method=='POST' and 'passwd' in request.form):
@@ -122,7 +113,7 @@ def artistPick():
     global userLogged
     if(request.method=='GET'):
         if( userLogged not in dic or dic[userLogged] is False):
-            return redirect("http://127.0.0.1:5000/"+"Login")
+            return redirect(url_for("login"))
     curr=mysql.connection.cursor()
     curr.execute("select * from artists order by artists.artist_id")
     data = curr.fetchall()
@@ -140,7 +131,7 @@ def match():
     global userLogged
     if(request.method=='GET'):
         if( userLogged not in dic or dic[userLogged] is False):
-            return redirect("http://127.0.0.1:5000/"+"Login")
+            return redirect(url_for("login"))
     if request.method == 'POST':
         artistName = request.form.get('comp_select')
 
@@ -184,7 +175,7 @@ def connect():
     global userLogged
     if(request.method=='GET'):
         if( userLogged not in dic or dic[userLogged] is False):
-            return redirect("http://127.0.0.1:5000/"+"Login")
+            return redirect(url_for("login"))
 
     userId = request.form.get('userid')
     userName = request.form.get('userName')
@@ -196,10 +187,32 @@ def connect():
     data = curr.fetchall()
 
     #Adding to User connections
-    tup=(userId, data[0])
-    # sql_select_query = """ insert into  %s"""
-    # curr.execute(sql_select_query, tup)
+    tup=(userLogged, userId, data[0])
+    sql_select_query = """ insert into connections(u_id1, u_id2, co_artist) %s"""
+    curr.execute(sql_select_query, tup)
     # data = curr.fetchall()
 
     print(userId)
     return render_template('connected.html', info=userName)
+
+
+
+@app.route("/fav_sugg", methods=["POST", "GET"])
+def home() :
+    global dic
+    global userLogged
+    if(request.method=='GET'):
+        if( userLogged not in dic or dic[userLogged] is False):
+            return redirect(url_for("login"))
+
+    if request.method == "POST":
+
+        user_id = request.form["u_id"]
+        cur = mysql.connection.cursor() 
+        cur.execute("select name from songs where genre in (select distinct genre from songs where artist_name in ( select distinct artist_name from albums where artist_id in ( select artist_id from fav_artists where user_id=\""+str(user_id)+"\"))) order by rand() limit 4;")
+        result = cur.fetchall()
+
+        return render_template("fav_sugg_display.html", result=result)
+    
+    else :
+        return render_template("fav_sugg.html")
