@@ -1,0 +1,43 @@
+{% extends 'menu.html' %}
+
+{% block body %}
+<body>
+	<div class="container-fluid align-middle" >
+		<div class="row justify-content-center">
+			<div class="col-12 col-sm-6 col-md-3 form-container">
+				<h1>Profile Page</h1>
+					<tr>
+						<br>
+						<td class="form-group">Your Username:</td>
+						<td>{{user[1]}}</td>
+						<br>
+						<br>
+					</tr>
+					<tr>
+						<td class="form-group">Your DOB:</td>
+						<td>{{user[4]}}</td>
+						<br>
+						<br>
+					</tr>
+					<tr>
+						<td class="form-group">Your Gender:</td>
+						<td>{{user[5]}}</td>
+						<br>
+						<br>
+					</tr>
+					<tr>
+						<td class="form-group">Your Email:</td>
+						<td>{{user[2]}}</td>
+						<br>
+						<br>
+					</tr>
+				<form method="POST" action="">
+					Change Password : <input class="form-control" id="exampleInputPassword1" type="password" name="passwd">
+					<br>
+					<input class="btn btn-primary btn-block" type="submit" value="Submit">
+				</form>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
