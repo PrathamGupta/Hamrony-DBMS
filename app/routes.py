@@ -48,7 +48,7 @@ def match():
         data=curr.fetchall()
         print(data)
         userData=data
-        countMatch=0
+        countMatch=-1
 
     countMatch+=1
     if countMatch>=len(userData):
