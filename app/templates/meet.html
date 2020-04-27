@@ -1,25 +1,31 @@
 {% extends 'menu.html' %}
 
 {% block body %}
-<a href="{{ url_for('match') }}"><button onclick="nextItem()">Next</button></a>
-<table>
-    <tr>
-        <th>USER ID.</th>
-        <th>NAME</th>
-        <th>EMAIL</th>
-        <th>DATE OF BIRTH</th>
-        <th>GENDER</th>
-    </tr>
-    
-        <tr>
-            <td><label id="id">{{ info[0] }}</label></td>
-            <td><label id="name">{{ info[1] }}</label></td>
-            <td><label id="email">{{ info[2] }}</label></td>
-            <td><label id="dob">{{ info[4] }}</label></td>
-            <td><label id="gender">{{ info[5] }}</label></td>
-        </tr>
-    
-</table>
 
+<form method="POST" action="{{ url_for('connect') }}">
+    <table>
+        <tr>
+            <th>USER ID.</th>
+            <th>NAME</th>
+            <th>EMAIL</th>
+            <th>DATE OF BIRTH</th>
+            <th>GENDER</th>
+        </tr>
+        
+            <tr>
+                <td><label name="id">{{ info[0] }}</label></td>
+                <td><label name="name">{{ info[1] }}</label></td>
+                <td><label name="email">{{ info[2] }}</label></td>
+                <td><label name="dob">{{ info[4] }}</label></td>
+                <td><label name="gender">{{ info[5] }}</label></td>
+            </tr>
+        
+    </table>
+    <input type="hidden" name="userid" value='{{ info[0] }}' >
+    <button type="submit" >Go</button>
+   
+</form>
+<a href="{{ url_for('match') }}"><button onclick="nextItem()">Next</button></a>
+<a href="{{ url_for('artistPick') }}"><button onclick="nextItem()">Select Another Artist</button></a>
 
 {% endblock %}

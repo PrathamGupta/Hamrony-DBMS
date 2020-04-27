@@ -46,14 +46,20 @@ def match():
         sql_select_query = """ select * from users u where u.user_id in %s"""
         curr.execute(sql_select_query, (list_of_user, ))
         data=curr.fetchall()
-        print(data)
         userData=data
         countMatch=-1
 
     countMatch+=1
-    if countMatch>=len(userData):
-        countMatch-=1
+    if countMatch==len(userData):
+        countMatch=0   
     userRow=userData[countMatch]
-    print(userRow)
+    print(countMatch)
 
     return render_template("meet.html", info=userRow)
+
+
+@app.route('/connect', methods=['GET', 'POST'])
+def connect():
+    userId = request.form.get('userid')
+    print(userId)
+    return render_template('connected.html', info=userId)
