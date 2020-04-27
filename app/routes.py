@@ -3,7 +3,7 @@ from app import app, mysql
 
 #Global Variables
 countMatch=-1
-artistMatch=-1
+artistName=''
 userData = []
 userRow=[]
 
@@ -24,6 +24,7 @@ def match():
     global countMatch
     global userData
     global userRow
+    global artistName
     if request.method == 'POST':
         artistName = request.form.get('comp_select')
 
@@ -60,6 +61,21 @@ def match():
 
 @app.route('/connect', methods=['GET', 'POST'])
 def connect():
+    global artistName
     userId = request.form.get('userid')
+    userName = request.form.get('userName')
+
+    # Find Artist Details
+    curr=mysql.connection.cursor()
+    sql_select_query = """select * from artists a where a.name = %s"""
+    curr.execute(sql_select_query, (artistName,))
+    data = curr.fetchall()
+
+    #Adding to User connections
+    tup=(userId, data[0])
+    # sql_select_query = """ insert into  %s"""
+    # curr.execute(sql_select_query, tup)
+    # data = curr.fetchall()
+
     print(userId)
-    return render_template('connected.html', info=userId)
+    return render_template('connected.html', info=userName)
