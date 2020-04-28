@@ -3,10 +3,10 @@
 
 {% block body %}
 <div class="container my-3"></div>
-  <div class="row text-center my-3">
-    <div class="col text-center align-self-center"><h1>Hello {{uname}}</h1></div>
+  <div class="row my-5 mx-5 text-center ">
+    <div class="col  text-center align-self-center"><h1>Hello {{uname}}</h1></div>
   </div>
-  <div class="row text-center align-middle my-3" style="padding-top: 20vh;" >
+  <div class="row text-center align-middle my-3" style="padding-top: 10vh;" >
     <div class="col ">
       <div class="row my-5 mx-5 justify-content-center ">
         <h2>Song Suggest</h2>
@@ -37,10 +37,20 @@
           You wanna know about a particular song or an artist? Worry not, our software provides you with a search system to search songs and find details about artists. You could also favourite a album of a particular artist after searching them.
         </div>
         <div class="row my-5 mx-5 justify-content-center">
-          <div class="col"><a href="{{ url_for('homePage') }}"><button class="btn btn-light">Find Songs</button></a></div>
           <div class="col"><a href="{{ url_for('artistSearch') }}"><button class="btn btn-light">Find Artists</button></a></div>
         </div>
-  </div>
+    </div>
+    <div class="col">
+      <div class="row my-5 mx-5 justify-content-center ">
+        <h2>Be an Artist</h2>
+      </div>
+      <div class="row my-5 mx-5 justify-content-center">
+        This feature in our software allows you to connect with people with the same music taste as yours. Our software allows you to select a person which has the same favourite artist as you do. Isn't it fun?
+      </div>
+      <div class="row my-5 mx-5 justify-content-center">
+        <a href="{{ url_for('artistPick') }}"><button class="btn btn-light">Be an Artist</button></a>
+      </div>
+    </div>
 </div>
 
 {% endblock %}

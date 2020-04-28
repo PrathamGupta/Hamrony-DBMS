@@ -95,14 +95,14 @@ def profile():
         if( userLogged not in dic or dic[userLogged] is False):
             return redirect(url_for("login"))
         else:
-            return render_template('profilePage.html', user=userLogged)
+            return render_template('profilePage.html', info=userLogged)
     if(request.method=='POST' and 'passwd' in request.form):
         userLogged[1]!='admin'
         cur=mysql.connection.cursor()
         userLogged[3]=request.form['passwd']
         cur.execute('UPDATE users SET passwd=%s WHERE user_id=%s',(request.form['passwd'], userLogged[0]))
         mysql.connection.commit()
-        return render_template('profilePage.html', user=userLogged)
+        return render_template('profilePage.html', info=userLogged)
 
 
 
@@ -179,7 +179,11 @@ def match():
 
     countMatch+=1
     if countMatch==len(userData):
-        countMatch=0   
+        countMatch=0  
+    if userData[countMatch][0]==userLogged[0]:
+        countMatch+=1
+    if countMatch==len(userData):
+        countMatch=0
     userRow=userData[countMatch]
     print(countMatch)
 
@@ -199,6 +203,7 @@ def connect():
 
     userId = request.form.get('userid')
     userName = request.form.get('userName')
+    userEmail=''
 
     # Find Artist Details
     curr=mysql.connection.cursor()
@@ -207,6 +212,9 @@ def connect():
     data = curr.fetchone()
 
     #Adding to User connections
+    curr.execute('select * from users where user_id = %s', (userId,))
+    dat=curr.fetchone()
+    userEmail=dat[2]
     curr.execute('select * from connections c where c.u_id1 = %s', (userLogged[0],  ))
     dat = curr.fetchall()
     print(userId)
@@ -219,9 +227,11 @@ def connect():
     if flag==0:        
         curr.execute('INSERT INTO connections(u_id1, u_id2, co_artist) VALUES (%s, %s, %s)', (userLogged[0], userId, data[0]))
         mysql.connection.commit()
-        return render_template('connected.html', info=userName)
+        userName='You have connected with '+userName
     else:
-        return render_template('notconnected.html', info=userName)
+        userName='You have already been connected with '+userName
+    passingdata=[userName, userEmail]
+    return render_template('connected.html', info=passingdata)
 
 
 
@@ -266,7 +276,6 @@ def artistResult():
     global searchArtist
     user = userLogged[0]
     name = searchArtist
-    temp=''
     global dic
     if(request.method=='GET'):
         if( userLogged not in dic or dic[userLogged] is False):
@@ -292,16 +301,49 @@ def artistResult():
         cur = mysql.connection.cursor()
         cur.execute(" select * from fav_albums where user_id = %s", (user,))
         data = cur.fetchall()
+        cur.execute(" select * from fav_artists where user_id = %s", (user,))
+        dataArtist = cur.fetchall()
         flag=0
+        z=0
         for i in data:
             if i[1] == id:
                 flag=1
+        for i in dataArtist:
+            if i[1] == artistID:
+                z=1
         if( flag == 0):
             temp='Album Added To Favourites'
             cur.execute("INSERT INTO fav_albums(user_id, album_id) VALUES(%s, %s)",(user, id))
-            cur.execute("INSERT INTO fav_artists(user_id, artist_id) VALUES(%s, %s)",(user, artistID))
+            if z==0:
+                cur.execute("INSERT INTO fav_artists(user_id, artist_id) VALUES(%s, %s)",(user, artistID))
             mysql.connection.commit()
         else:
             temp='Album was already in Favourites'
         cur.close()
     return render_template('result.html',info = userDetails)
+
+#Function to be an artist
+@app.route('/artistAdd', methods=['POST','GET'])
+def artistAdd():
+	email=""
+	name=""
+	if request.method == 'POST':
+		if 'uname' in request.form and 'passwd' in request.form and 'email' in request.form and 'gender' in request.form and 'dob' in request.form:
+			name=request.form['uname']
+			passwd=request.form['passwd']
+			email=request.form['email']
+			gender=request.form['gender']
+			dob=request.form['dob']
+			cur=mysql.connection.cursor()
+			print(email)
+			cur.execute('SELECT * FROM artists WHERE name=%s',(name,))
+			if cur.fetchone():
+				return render_template('addSong.html', info = 0 )
+			cur.execute('SELECT COUNT(*) FROM artists')
+			cur.execute('INSERT INTO artists(artist_id, name, email, passwd, dob, signed, gender, followers ) VALUES (%d, %s, %s, %s, %s, %d, %s, %d)', (int(cur.fetchone()[0])+1,name, email, passwd, dob, 0, gender, 0 ))
+			mysql.connection.commit()
+			return render_template('addSong.html', info = 1)
+		else:
+			return render_template('addArtist.html')
+	else:
+		return render_template('addArtist.html')
