@@ -7,9 +7,7 @@
         <div class="col-12 col-sm-6 col-md-3 bg-light " style="padding: 50px;">
             <form method="POST" action="" class="form-container">
                 {% if info == 0 %}
-                <div class="row">
-                    <small><br> You are not registered as an artist.  <br> </small>
-                </div>
+                    <small>You are not registered as an artist.<br><br> </small>
                 {% endif %}
                 <h1> Register As an Artist </h1>
                 <br>
@@ -22,25 +20,7 @@
               <div class="form-group">
                 <input type="password" name="passwd" class="form-control" id="exampleInputEmail1" placeholder="Password">
               </div>
-              <br>
-              <div class="form-group">
-                <td>Gender: </td>
-                    <td>
-                        <input type="radio" name="gender" value="Male">Male
-                    </td>
-                    <td>
-                        <input type="radio" name="gender" value="Female">Female
-                    </td>
-                    <td>
-                        <input type="radio" name="gender" value="Other">Other
-                    </td>
-                </tr>
-              </div>
-              <br>
-              <div class="form-group">
-                <label for="exampleInputEmail1">Date of Birth:</label>
-                <input type="date" name="dob" class="form-control">
-              </div>
+            
               <br>
               <button type="submit" class="btn btn-primary btn-block">Register</button>
               <br>

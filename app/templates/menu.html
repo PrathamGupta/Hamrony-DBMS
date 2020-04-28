@@ -24,7 +24,9 @@
                     </a>
                     <div class="dropdown-menu nav-des" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="{{ url_for('artistSearch') }}">Find Artists</a>
-                        <a class="dropdown-item" href="#">Be an Artist</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('artistAdd') }}">Be an Artist</a>
+                        <a class="dropdown-item" href="{{ url_for('songAdd') }}">Add Songs</a>
                     </div>
                 </li>
                 <li class="nav-item">
