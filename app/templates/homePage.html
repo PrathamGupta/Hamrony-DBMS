@@ -48,8 +48,16 @@
         This feature in our software allows you to connect with people with the same music taste as yours. Our software allows you to select a person which has the same favourite artist as you do. Isn't it fun?
       </div>
       <div class="row my-5 mx-5 justify-content-center">
-        <a href="{{ url_for('artistPick') }}"><button class="btn btn-light">Be an Artist</button></a>
-      </div>
+        <div class="d-flex justify-content-center">
+        <div class="col">
+          <a href="{{ url_for('artistAdd') }}"><button class="btn btn-light">Be an Artist</button></a>
+        </div>
+        <div class="col">
+          <a href="{{ url_for('songsAdd') }}"><button class="btn btn-light">Add Songs</button></a>
+        </div>
+        </div>
+        </div>
+        
     </div>
 </div>
 

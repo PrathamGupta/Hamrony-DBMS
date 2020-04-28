@@ -325,25 +325,68 @@ def artistResult():
 #Function to be an artist
 @app.route('/artistAdd', methods=['POST','GET'])
 def artistAdd():
-	email=""
-	name=""
-	if request.method == 'POST':
-		if 'uname' in request.form and 'passwd' in request.form and 'email' in request.form and 'gender' in request.form and 'dob' in request.form:
-			name=request.form['uname']
-			passwd=request.form['passwd']
-			email=request.form['email']
-			gender=request.form['gender']
-			dob=request.form['dob']
-			cur=mysql.connection.cursor()
-			print(email)
-			cur.execute('SELECT * FROM artists WHERE name=%s',(name,))
-			if cur.fetchone():
-				return render_template('addSong.html', info = 0 )
-			cur.execute('SELECT COUNT(*) FROM artists')
-			cur.execute('INSERT INTO artists(artist_id, name, email, passwd, dob, signed, gender, followers ) VALUES (%d, %s, %s, %s, %s, %d, %s, %d)', (int(cur.fetchone()[0])+1,name, email, passwd, dob, 0, gender, 0 ))
-			mysql.connection.commit()
-			return render_template('addSong.html', info = 1)
-		else:
-			return render_template('addArtist.html')
-	else:
-		return render_template('addArtist.html')
+    global dic
+    global userLogged
+    if(request.method=='GET'):
+        if( userLogged not in dic or dic[userLogged] is False):
+            return redirect(url_for("login"))
+
+    cur=mysql.connection.cursor()
+    email=""
+    name=""
+    if request.method == 'POST':
+        if 'uname' in request.form and 'passwd' in request.form and 'email' in request.form and 'gender' in request.form and 'dob' in request.form:
+            name=request.form['uname']
+            passwd=request.form['passwd']
+            email=request.form['email']
+            gender=request.form['gender']
+            dob=request.form['dob']
+            print(email)
+            cur.execute('SELECT * FROM artists WHERE name=%s',(name,))
+            if cur.fetchone():
+                return render_template('addSong.html', info = 0)
+            cur.execute('SELECT COUNT(*) FROM artists')
+            cur.execute('INSERT INTO artists(artist_id, name, email, passwd, dob, signed, gender, followers ) VALUES (%d, %s, %s, %s, %s, %d, %s, %d)', (int(cur.fetchone()[0])+1,name, email, passwd, dob, 0, gender, 0 ))
+            mysql.connection.commit()
+            return render_template('addSong.html', info = 1)
+        else:
+            return render_template('addArtist.html', info =1)
+    else:
+        return render_template('addArtist.html', info =1)
+
+
+#Function to add songs
+@app.route('/songAdd', methods=['POST', 'GET'])
+def songAdd():
+    global dic
+    global userLogged
+    if(request.method=='GET'):
+        if( userLogged not in dic or dic[userLogged] is False):
+            return redirect(url_for("login"))
+
+    if request.method == 'POST':
+        if 'uname' in request.form and 'artist_name' in request.form and 'label_name' in request.form and 'album_name' in request.form and 'genre' in request.form and 'lang' in request.form and 'dor' in request.form:
+            name=request.form['uname']
+            artist_name=request.form['artist_name']
+            label_name=request.form['label_name']
+            album_name=request.form['album_name']
+            dor=request.form['dor']
+            genre=request.form['genre']
+            lang=request.form['lang']
+            passwd = request.form['passwd']
+            cur=mysql.connection.cursor()
+            print(artist_name)
+            cur.execute('select * from artists where name = %s and passwd = %s ', (artist_name, passwd))
+            if len(cur.fetchall())==0:
+                return render_template('addArtist.html', info =0)
+            cur.execute('SELECT * FROM songs WHERE artist_name=%s',(artist_name,))
+            if cur.fetchone():
+                return render_template('addSong.html')
+            cur.execute('SELECT COUNT(*) FROM songs')
+            cur.execute('INSERT INTO songs(song_id, name, artist_name, label_name, album_name, release_date, views, genre, language) VALUES (%d, %s, %s, %s, %s, %d, %s, %s)', (int(cur.fetchone()[0])+1,name, artist_name, label_name, album_name, dor, 0, genre, lang))
+            mysql.connection.commit()
+            return redirect("http://127.0.0.1:5000/")
+        else:
+            return render_template('addSong.html')
+    else:
+        return render_template('addSong.html')
