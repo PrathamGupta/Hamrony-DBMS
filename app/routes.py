@@ -6,11 +6,12 @@ countMatch=-1
 artistName=''
 userData = []
 userRow=[]
+searchArtist=''
 dic={}
 userLogged=()
 
 
-
+#Main page which leads to login 
 @app.route('/')
 def main():
     global dic
@@ -23,7 +24,7 @@ def main():
 
 
 
-
+#Login Page 
 @app.route('/Login', methods  =['POST','GET'])
 def login():
     global dic
@@ -45,12 +46,10 @@ def login():
         return render_template('login.html')
 
 
-
+#Register Page
 @app.route('/Register', methods=['POST','GET'])
 def register():
-    msg=''
     email=""
-    password=""
     name=""
     if request.method == 'POST':
         if 'uname' in request.form and 'uname'.lower()!='admin' and 'passwd' in request.form and 'email' in request.form and 'gender' in request.form and 'dob' in request.form:
@@ -75,7 +74,7 @@ def register():
         return render_template('reg.html')
 
 
-
+#HomePage all Pages lead to this
 @app.route('/HomePage', methods=['POST','GET'])
 def homePage():
     global dic
@@ -115,8 +114,28 @@ def artistPick():
         if( userLogged not in dic or dic[userLogged] is False):
             return redirect(url_for("login"))
     curr=mysql.connection.cursor()
-    curr.execute("select * from artists order by artists.artist_id")
-    data = curr.fetchall()
+
+    #Finding Users with the same interest
+    sql_select_query = """select * from fav_artists f where f.user_id = %s"""
+    curr.execute(sql_select_query, (userLogged[0],))
+    data=curr.fetchall()
+    list_of_artists=[]
+    for i in data:
+        list_of_artists.append(i[1])
+    print(list_of_artists)
+
+    if len(list_of_artists)==0:
+        curr.execute(" select * from artists")
+        data=curr.fetchall()
+    elif len(list_of_artists)==1:
+        curr.execute("select * from artists  where artist_id = %s ", (list_of_artists[0],))
+        data = curr.fetchall()
+    else:
+        list_of_artists=tuple(list_of_artists)
+        print(list_of_artists)
+        curr.execute("select * from artists  where artist_id in %s order by artist_id", (list_of_artists, ))
+        data = curr.fetchall()
+
     return render_template("artist.html", info=data)
 
 
@@ -132,6 +151,7 @@ def match():
     if(request.method=='GET'):
         if( userLogged not in dic or dic[userLogged] is False):
             return redirect(url_for("login"))
+
     if request.method == 'POST':
         artistName = request.form.get('comp_select')
 
@@ -184,35 +204,104 @@ def connect():
     curr=mysql.connection.cursor()
     sql_select_query = """select * from artists a where a.name = %s"""
     curr.execute(sql_select_query, (artistName,))
-    data = curr.fetchall()
+    data = curr.fetchone()
 
     #Adding to User connections
-    tup=(userLogged, userId, data[0])
-    sql_select_query = """ insert into connections(u_id1, u_id2, co_artist) %s"""
-    curr.execute(sql_select_query, tup)
-    # data = curr.fetchall()
-
+    curr.execute('select * from connections c where c.u_id1 = %s', (userLogged[0],  ))
+    dat = curr.fetchall()
     print(userId)
-    return render_template('connected.html', info=userName)
+    print(userLogged[0])
+    print(data[0])
+    flag=0
+    for i in dat:
+        if i[1]==userId:
+            flag=1
+    if flag==0:        
+        curr.execute('INSERT INTO connections(u_id1, u_id2, co_artist) VALUES (%s, %s, %s)', (userLogged[0], userId, data[0]))
+        mysql.connection.commit()
+        return render_template('connected.html', info=userName)
+    else:
+        return render_template('notconnected.html', info=userName)
 
 
 
 @app.route("/fav_sugg", methods=["POST", "GET"])
-def home() :
+def suggestion() :
     global dic
     global userLogged
     if(request.method=='GET'):
         if( userLogged not in dic or dic[userLogged] is False):
             return redirect(url_for("login"))
 
-    if request.method == "POST":
+    user_id = userLogged[0]
+    cur = mysql.connection.cursor() 
+    cur.execute("select * from songs where genre in (select distinct genre from songs where artist_name in ( select distinct artist_name from albums where artist_id in ( select artist_id from fav_artists where user_id=\""+str(user_id)+"\"))) order by rand() limit 4;")
+    result = cur.fetchall()
 
-        user_id = request.form["u_id"]
-        cur = mysql.connection.cursor() 
-        cur.execute("select name from songs where genre in (select distinct genre from songs where artist_name in ( select distinct artist_name from albums where artist_id in ( select artist_id from fav_artists where user_id=\""+str(user_id)+"\"))) order by rand() limit 4;")
-        result = cur.fetchall()
+    return render_template("fav_sugg_display.html", result=result)
 
-        return render_template("fav_sugg_display.html", result=result)
-    
-    else :
-        return render_template("fav_sugg.html")
+
+
+@app.route('/artist', methods={'GET', 'POST'})
+def artistSearch():
+    global searchArtist
+    global dic
+    global userLogged
+    if(request.method=='GET'):
+        if( userLogged not in dic or dic[userLogged] is False):
+            return redirect(url_for("login"))
+
+	# Store the name of artist
+    if request.method == 'POST':
+        details = request.form
+        searchArtist = details['name']
+        return redirect('artistResult')
+
+    return render_template('search.html')   
+
+
+@app.route('/artistResult', methods={'GET', 'POST'})
+def artistResult():
+    global userLogged
+    global searchArtist
+    user = userLogged[0]
+    name = searchArtist
+    temp=''
+    global dic
+    if(request.method=='GET'):
+        if( userLogged not in dic or dic[userLogged] is False):
+            return redirect(url_for("login"))
+
+    #Getting the artist searched
+    cur = mysql.connection.cursor()
+    sql_query = """select * from albums a where a.artist_name =%s"""
+    sql = """select * from artists a where a.name =%s"""
+    resultValue = cur.execute(sql_query, (name,))
+    if resultValue > 0:
+        userDetails = cur.fetchall()
+    else:
+        return 'Invalid Artist'
+    cur.execute(sql, (name,))
+    artis = cur.fetchone()
+    artistID = artis[0]
+
+    #Adding to favourite albums
+    if request.method == 'POST':
+        albumID = request.form
+        id = albumID['numb']
+        cur = mysql.connection.cursor()
+        cur.execute(" select * from fav_albums where user_id = %s", (user,))
+        data = cur.fetchall()
+        flag=0
+        for i in data:
+            if i[1] == id:
+                flag=1
+        if( flag == 0):
+            temp='Album Added To Favourites'
+            cur.execute("INSERT INTO fav_albums(user_id, album_id) VALUES(%s, %s)",(user, id))
+            cur.execute("INSERT INTO fav_artists(user_id, artist_id) VALUES(%s, %s)",(user, artistID))
+            mysql.connection.commit()
+        else:
+            temp='Album was already in Favourites'
+        cur.close()
+    return render_template('result.html',info = userDetails)

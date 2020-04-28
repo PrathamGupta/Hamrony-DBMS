@@ -1,0 +1,42 @@
+{% extends 'menu.html' %}
+
+{% block body %}
+ 
+
+<table >
+  
+  <tr>
+  	<th>AlbumID</th>
+  	<th>AlbumName</th>
+  	<th>ArtistID</th>
+  	<th>ArtistName</th>
+  	<th>LabelName</th>
+  	<th>NoOfSongs</th>
+  	<th>ReleaseDate</th>
+  </tr>
+  {% for user in info %}
+
+  <tr>
+    <td> {{user[0]}} </td>
+    <td> {{user[1]}} </td>
+    <td> {{user[2]}} </td>
+    <td> {{user[3]}} </td>
+    <td> {{user[4]}} </td>
+    <td> {{user[5]}} </td>
+    <td> {{user[6]}} </td>
+  </tr>
+  {% endfor %}
+</table>
+
+<br>
+<br>
+<form method="POST" action="">
+  Enter Album ID To Fav<input type="text" name="numb" />
+  <br>
+  <input type="submit">
+</form>
+
+
+
+
+{% endblock %}
